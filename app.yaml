@@ -1,0 +1,10 @@
+runtime: go
+api_version: go1
+service: blocks-logs
+handlers:
+- url: "/"
+  script: _go_app
+env_variables:
+  GCLOUD_PROJECT: PROJCT-ID
+  PUBSUB_TOPIC: blocks-worker-logs
+  API_TOKEN: XXXXXXXXXX
