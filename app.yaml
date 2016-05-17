@@ -1,6 +1,5 @@
 runtime: go
 api_version: go1
-service: blocks-logs
 handlers:
 - url: "/"
   script: _go_app
