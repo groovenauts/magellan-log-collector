@@ -121,6 +121,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		log.Infof(ctx, "publish data = %v", string(msg.Data))
 		if _, err := topic.Publish(ctx, msg); err != nil {
 			output.Message = fmt.Sprintf("Could not publish message: %v", err)
+			log.Errorf(ctx, "Could not publish message: %v", err)
 			code = 500
 			return
 		}
