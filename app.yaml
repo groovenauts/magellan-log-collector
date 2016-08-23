@@ -15,4 +15,4 @@ env_variables:
   PUBSUB_TOPIC: blocks-worker-logs
   API_TOKEN: XXXXXXXXXX
 automatic_scaling:
-  max_concurrent_requests: 5
+  max_concurrent_requests: 24
