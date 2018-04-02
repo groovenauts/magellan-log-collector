@@ -15,7 +15,7 @@ then
 fi
 
 SDK_BASE=$(dirname "${APPCFG}")
-GO_APP_BUILDER="${SDK_BASE}/goroot/bin/go-app-builder"
+GO_APP_BUILDER="${SDK_BASE}/goroot-1.8/bin/go-app-builder"
 
 APP_BASE=$(dirname "$0")
 
@@ -30,7 +30,7 @@ mkdir -p "${PKGDIR}"
 
 echo -n > "${MANIFEST}"
 
-for line in $(${GO_APP_BUILDER} -api_version go1 -app_base "${APP_BASE}" -arch 6 -print_extras -goroot "${SDK_BASE}/goroot" ${SRCS})
+for line in $(${GO_APP_BUILDER} -api_version go1 -app_base "${APP_BASE}" -arch 6 -print_extras -goroot "${SDK_BASE}/goroot-1.8" ${SRCS})
 do
   filepath=$(echo "${line}" | cut -f 1 -d \|)
   originalpath=$(echo "${line}" | cut -f 2 -d \|)
