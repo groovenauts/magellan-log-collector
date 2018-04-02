@@ -82,6 +82,12 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		output.Message = e.Error()
 		return
 	}
+
+	if len(body) > 64*1024*1024 {
+		output.Message = "Request payload size exceeded 64KB."
+		code = 400
+		return
+	}
 	input := Input{}
 	e = json.Unmarshal(body, &input)
 	if e != nil {
