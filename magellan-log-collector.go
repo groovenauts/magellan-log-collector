@@ -1,13 +1,15 @@
 package main
 
 import (
+	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/net/context"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
-	"google.golang.org/cloud/pubsub"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -107,11 +109,15 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := pubsub.NewClient(ctx, mustGetenv(ctx, "GCLOUD_PROJECT"))
+	hc, err := google.DefaultClient(ctx, pubsub.PubsubScope)
 	if err != nil {
 		log.Criticalf(ctx, err.Error())
 	}
-	topic := client.Topic(mustGetenv(ctx, "PUBSUB_TOPIC"))
+	pubsubService, err := pubsub.New(hc)
+	if err != nil {
+		log.Criticalf(ctx, err.Error())
+	}
+	topicId := "projects/" + mustGetenv(ctx, "GCLOUD_PROJECT") + "/topics/" + mustGetenv(ctx, "PUBSUB_TOPIC")
 
 	for _, entry := range input.Logs {
 		json, e := json.Marshal(entry)
@@ -121,11 +127,15 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 			code = 400
 			return
 		}
-		msg := &pubsub.Message{
-			Data: []byte(json),
+		msg := &pubsub.PublishRequest{
+			Messages: []*pubsub.PubsubMessage{
+				{
+					Data: base64.StdEncoding.EncodeToString(json),
+				},
+			},
 		}
-		log.Infof(ctx, "publish data = %v", string(msg.Data))
-		if _, err := topic.Publish(ctx, msg); err != nil {
+		log.Infof(ctx, "publish data = %v", string(json))
+		if _, err := pubsubService.Projects.Topics.Publish(topicId, msg).Do(); err != nil {
 			output.Message = fmt.Sprintf("Could not publish message: %v", err)
 			log.Errorf(ctx, "Could not publish message: %v", err)
 			code = 500
