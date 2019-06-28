@@ -50,7 +50,7 @@ type Output struct {
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context();
+	ctx := r.Context()
 	output := Output{false, "something wrong."}
 	code := 500
 
