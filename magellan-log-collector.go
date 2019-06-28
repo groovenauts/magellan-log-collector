@@ -8,9 +8,8 @@ import (
 	"fmt"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/pubsub/v1"
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -20,15 +19,10 @@ var (
 	apiTokens []string
 )
 
-func init() {
-	apiTokens = nil
-	http.HandleFunc("/", postHandler)
-}
-
 func mustGetenv(ctx context.Context, k string) string {
 	v := os.Getenv(k)
 	if v == "" {
-		log.Criticalf(ctx, "%s environment variable not set.", k)
+		log.Printf("%s environment variable not set.", k)
 	}
 	return v
 }
@@ -56,14 +50,14 @@ type Output struct {
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
+	ctx := r.Context();
 	output := Output{false, "something wrong."}
 	code := 500
 
 	defer func() {
 		outjson, e := json.Marshal(output)
 		if e != nil {
-			log.Errorf(ctx, e.Error())
+			log.Printf(e.Error())
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if code == 200 {
@@ -94,7 +88,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal(body, &input)
 	if e != nil {
 		output.Message = e.Error()
-		log.Errorf(ctx, e.Error())
+		log.Printf(e.Error())
 		code = 400
 		return
 	}
@@ -111,11 +105,11 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 
 	hc, err := google.DefaultClient(ctx, pubsub.PubsubScope)
 	if err != nil {
-		log.Criticalf(ctx, err.Error())
+		log.Printf(err.Error())
 	}
 	pubsubService, err := pubsub.New(hc)
 	if err != nil {
-		log.Criticalf(ctx, err.Error())
+		log.Printf(err.Error())
 	}
 	topicId := "projects/" + mustGetenv(ctx, "GCLOUD_PROJECT") + "/topics/" + mustGetenv(ctx, "PUBSUB_TOPIC")
 
@@ -123,7 +117,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		json, e := json.Marshal(entry)
 		if e != nil {
 			output.Message = e.Error()
-			log.Errorf(ctx, e.Error())
+			log.Printf(e.Error())
 			code = 400
 			return
 		}
@@ -134,10 +128,10 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		}
-		log.Infof(ctx, "publish data = %v", string(json))
+		log.Printf("publish data = %v", string(json))
 		if _, err := pubsubService.Projects.Topics.Publish(topicId, msg).Do(); err != nil {
 			output.Message = fmt.Sprintf("Could not publish message: %v", err)
-			log.Errorf(ctx, "Could not publish message: %v", err)
+			log.Printf("Could not publish message: %v", err)
 			code = 500
 			return
 		}
@@ -147,4 +141,18 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	output.Message = "ok"
 	code = 200
 	return
+}
+
+func main() {
+	apiTokens = nil
+	http.HandleFunc("/", postHandler)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
+
+	log.Printf("Listening on port %s", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
