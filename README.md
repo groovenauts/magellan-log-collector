@@ -11,7 +11,7 @@ goapp serve
 Specify GCP project id and api tokens (comma separated).
 
 ```
-appcfg.py -A YOUR-PROJECT-ID -E GCLOUD_PROJECT:YOUR-PROJECT-ID -E API_TOKEN:XXXXXXXX update .
+gcloud --project=YOUR-PROJECT-ID app deploy app.yaml
 ```
 
 ## Upload package to deploy via Google App Engine Admin API
