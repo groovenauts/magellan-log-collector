@@ -29,7 +29,7 @@ echo -n > "${MANIFEST}"
 
 for f in $(find src -name "*.go" -a -not -name "*_test.go" | sed -e 's/src\///g'); do
   originalpath="src/${f}"
-  destf="gopath/src/${f}"
+  destf="_gopath/src/${f}"
   mkdir -p "$(dirname "${PKGDIR}/${destf}")"
   cp "${originalpath}" "${PKGDIR}/${destf}"
   (cd "${PKGDIR}" && sha1sum "${destf}") >> "${MANIFEST}"
@@ -42,6 +42,6 @@ do
   (cd "${PKGDIR}" && sha1sum "${filepath}") >> "${MANIFEST}"
 done
 
-mkdir -p "${PKGDIR}/gopath"
-echo -n 'github.com/groovenauts/magellan-log-collector' > "${PKGDIR}/gopath/main-package-path"
-(cd "${PKGDIR}" && sha1sum "gopath/main-package-path") >> "${MANIFEST}"
+mkdir -p "${PKGDIR}/_gopath"
+echo -n 'github.com/groovenauts/magellan-log-collector' > "${PKGDIR}/_gopath/main-package-path"
+(cd "${PKGDIR}" && sha1sum "_gopath/main-package-path") >> "${MANIFEST}"
