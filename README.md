@@ -3,7 +3,8 @@
 ## Run local server
 
 ```
-goapp serve
+export GO111MODULE=on
+go run magellan-log-collector.go
 ```
 
 ## Deploy
@@ -11,19 +12,20 @@ goapp serve
 Specify GCP project id and api tokens (comma separated).
 
 ```
+export GO111MODULE=on
 gcloud --project=YOUR-PROJECT-ID app deploy app.yaml
 ```
 
 ## Upload package to deploy via Google App Engine Admin API
 
-Run the following command To gather source files and make manifest file. `v1` stands for the version of application.
+Run the following command to gather source files and make manifest file, upload them to gcs.
+`v1` stands for the version of application.
 
 ```
-./makepkg.sh v1
+export GO111MODULE=on
+./stage.sh your-gae-repository v1
 ```
 
-Upload source files and a manifest file to gcs.
+This workflow is automated by [Release workflow](.github/workflows/release.yml),
+triggered by tag push.
 
-```
-gsutil cp -R pkg/v1 gs://your-gae-repository/magellan-log-collector/v1
-```

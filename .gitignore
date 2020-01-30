@@ -1,6 +1,4 @@
 .*.swp
-/pkg/*
 /staging.yaml
 /production.yaml
-/src
 /magellan-log-collector
