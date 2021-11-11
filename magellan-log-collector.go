@@ -128,7 +128,6 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		}
-		log.Printf("publish data = %v", string(json))
 		if _, err := pubsubService.Projects.Topics.Publish(topicId, msg).Do(); err != nil {
 			output.Message = fmt.Sprintf("Could not publish message: %v", err)
 			log.Printf("Could not publish message: %v", err)
