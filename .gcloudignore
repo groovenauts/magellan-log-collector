@@ -9,3 +9,4 @@ stage.sh
 stage-config.sh
 README.md
 *.rb
+pkg/
