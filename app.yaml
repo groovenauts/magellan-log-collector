@@ -1,4 +1,4 @@
-runtime: go111
+runtime: go120
 env_variables:
   GCLOUD_PROJECT: PROJCT-ID
   PUBSUB_TOPIC: blocks-worker-logs
